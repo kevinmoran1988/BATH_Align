@@ -38,14 +38,14 @@ Before you begin using BATH, it will be helpful to become familiar with the file
 
 BATH's installation includes a branch of the [Easel](https://github.com/EddyRivasLab/easel) software suite developed by the Eddy/Rivas Lab.  The Easel miniapps are a set of tools designed to perform several operations on MSA and unaligned sequence files.  To familiarize yourself with those tools, see the [HMMER user guide](http://eddylab.org/software/hmmer/Userguide.pdf) (pages 145-204). 
 
-A bathsearch query file contains the proteins you wish to search for in the target DNA. The preferred format for query files is a BATH-formatted pHMM file (although you may also use an MSA or unaligned sequence file - see practice 11). The current version of BATH performs translated (non-framshifted, non-spliced) alignment by default.  To enable the frameshift-aware algorithms, you can use the --fs flag.  To enable the splicing algorithm, you can use the --splice flag.  At this time, BATH does not support using --fs and --splice for the same search. The rest of this section will focus on practices to get you acquainted with the BATH tools used to create and manipulate BATH-formatted pHMM files.
+A bathsearch query file contains the proteins you wish to search for in the target DNA. The preferred format for query files is a BATH-formatted pHMM file (although you may also use an MSA or unaligned sequence file - see practice 11). The current version of BATH performs translated (non-frameshifted, non-spliced) alignment by default.  To enable the frameshift-aware algorithms, you can use the --fs flag.  To enable the splicing algorithm, you can use the --splice flag.  At this time, BATH does not support using --fs and --splice for the same search. The rest of this section will focus on practices to get you acquainted with the BATH tools used to create and manipulate BATH-formatted pHMM files.
 
 <details><summary>Practice 1: building a pHMM from an MSA using bathbuild</summary>
 <p>
 
 The sensitivity of BATH is powered, in large part, by the use of pHMMs. The pHMM files used by BATH are nearly identical to the ones used by HMMER, but contain additional information needed to perform codon translations and provide e-values for frameshift-aware alignments. If you would like more information on pHMM files see the [HMMER user guide](http://eddylab.org/software/hmmer/Userguide.pdf) (page 208). 
    
-BATH formated pHMMs can be created from MSA files or unaligned sequence files using the tool bathbuild. The file MET.msa contains two stockholm formatted protein MSAs (note that stockholm is the only MSA format that allows multiple MSAs in a single file). You can build pHMMs from those MSAs and save them to the file MET.bhmm by running the following command: 
+BATH formatted pHMMs can be created from MSA files or unaligned sequence files using the tool bathbuild. The file MET.msa contains two stockholm formatted protein MSAs (note that stockholm is the only MSA format that allows multiple MSAs in a single file). You can build pHMMs from those MSAs and save them to the file MET.bhmm by running the following command: 
    
 ```bash
 % bathbuild MET.bhmm MET.msa
@@ -98,7 +98,7 @@ description    Description of the protein family - may be blank.
 <details><summary>Practice 2: building a pHMM from an MSA using bathbuild with an alternate codon translation table</summary>
 <p>
 
-One of the fields that distinguishes a BATH formatted pHMM file from an HMMER formated pHMM file is an [NCBI codon translation table ID](https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi). The correct codon table depends on the origins of the target DNA you intend to search the pHMMs against. When you run bathsearch, selecting the correct codon table will produce the highest quality alignments. Ensuring that the pHMMs were built with that same codon table will produce the most accurate e-values for those alignments. 
+One of the fields that distinguishes a BATH formatted pHMM file from an HMMER formatted pHMM file is an [NCBI codon translation table ID](https://www.ncbi.nlm.nih.gov/Taxonomy/Utils/wprintgc.cgi). The correct codon table depends on the origins of the target DNA you intend to search the pHMMs against. When you run bathsearch, selecting the correct codon table will produce the highest quality alignments. Ensuring that the pHMMs were built with that same codon table will produce the most accurate e-values for those alignments. 
    
 By default, bathbuild will use the standard code employed by eukaryotic nuclear DNA. To use an alternate codon translation table include the option --ct followed by a table ID from the list below:
 
@@ -153,7 +153,7 @@ The summary output that is printed to your stdout should resemble the text below
 </p>
 </details>
 
-<details><summary>Practice 3: building a pHMM from an unaligned sequences file</summary>
+<details><summary>Practice 3: building a pHMM from an unaligned sequence file</summary>
 <p>
 
 If your queries are single unaligned sequences rather than MSAs you can still build HMMs using bathbuild. The file three_seqs.fa contains three unaligned protein sequences. To build three HMMs, one for each sequence, use the following command. 
@@ -185,7 +185,7 @@ The summary output that is printed to your stdout should resemble the text below
 </p>
 </details>
 
-<details><summary>Practice 4: summerizing pHMM files with bathstat</summary>
+<details><summary>Practice 4: summarizing pHMM files with bathstat</summary>
 <p>
 
 Since a pHMM file may contain any number of individual models, it is useful to be able to quickly summarize the contents. The tool bathstat is designed to provide such a summary for BATH-formatted pHMM files.  The following command will summarize the pHMM file built in practice 1:
@@ -295,7 +295,7 @@ This should produce the following output:
 <details><summary>Practice 7: indexing a pHMM file and copying a single pHMM using bathfetch </summary>
 <p>
 
-If you only need to search with a single pHMM, but it is located in a file with multiple pHMMs, you can save time by copying the desired pHMM to a new file using bathfetch. If the original file contains a large number of pHMMs, you may want to create an index file to speed up the fetch process.  The following command will create the index file tRNA-proteins.bhmm.ssi for the BATH pHMM file created in Practice 4. 
+If you only need to search with a single pHMM, but it is located in a file with multiple pHMMs, you can save time by copying the desired pHMM to a new file using bathfetch. If the original file contains a large number of pHMMs, you may want to create an index file to speed up the fetch process.  The following command will create the index file tRNA-proteins.bhmm.ssi for the BATH pHMM file created in Practice 5. 
 ```bash
 % bathfetch --index tRNA-proteins.bhmm 
 ```
@@ -392,7 +392,7 @@ Scores for complete hits:
  !  110.6   0.3     3e-35          2       116 .]       672       325 ..      3000   0.92
 ```
    
-   4) Alignment - Below each annotation line, bathsearch prints the alignment for that query-target hit. A typical bathsearch alignment will contain at least the following five rows (in order from top to bottom): (1) the query row, (2) the match row, (3) the translation row, (4) the target row, and (5) the posterior probability row. If the pHMM was built from an MSA containing consensus structure or reference annotations, those will be visible on separate CS and RF rows above the query row.  There are also three types of columns: (1) a match in which a query amino acid is aligned to a target codon or quasi-codon, (2) a deletion in which the query amino acid is aligned to target gap characters, or (3) an insertion in which the target codon is aligned to a query gap character. 
+   4) Alignment - Below each annotation line, bathsearch prints the alignment for that query-target hit. A typical bathsearch alignment will contain at least the following five rows (in order from top to bottom): (1) the query row, (2) the match row, (3) the translation row, (4) the target row, and (5) the posterior probability row. If the pHMM was built from an MSA containing consensus structure or reference annotations, those will be visible on separate CS and RF rows above the query row.  There are also three types of columns: (1) a match in which a query amino acid is aligned to a target codon or quasicodon, (2) a deletion in which the query amino acid is aligned to target gap characters, or (3) an insertion in which the target codon is aligned to a query gap character. 
    
        The query row begins with the name of the query HMM followed by the coordinates of the first amino acid on that line of the alignment, and ends with the coordinates of the last amino acid on that line of the alignment. For each column, the query row shows either the query consensus letter, for matches and deletions, or a gap character ('.') for insertions. 
    
@@ -541,7 +541,7 @@ The number of exons for each alignment is listed in both the query header and th
 In addition to the standard alignment output, bathsearch can also produce tabular summary files with the use of the following flags:
 ```bash
 --tblout     : tabular hit list, works with all alignment modes
---exontblout : tabular exon list, works this spliced alignment only
+--exontblout : tabular exon list, works with spliced alignment only
 ```
 
 <details><summary>Using --tblout</summary>
