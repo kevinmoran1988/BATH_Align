@@ -3244,7 +3244,6 @@ p7_splice_AlignSplicedSequence(SPLICE_WORKER_INFO *info, SPLICE_PATH *spliced_pa
 
   p7_omx_GrowTo_dpf(pli->fwd, om->M, pli->amino_sq->n, pli->amino_sq->n);
   p7_omx_GrowTo_dpf(pli->bwd, om->M, pli->amino_sq->n, pli->amino_sq->n);
-  p7_omx_GrowTo_dpf(pli->pp,  om->M, pli->amino_sq->n, pli->amino_sq->n);
 
   p7_bg_SetLength(pli->bg, pli->amino_sq->n);
   if (pli->do_biasfilter)
@@ -3255,17 +3254,17 @@ p7_splice_AlignSplicedSequence(SPLICE_WORKER_INFO *info, SPLICE_PATH *spliced_pa
   p7_Forward (pli->amino_sq->dsq, pli->amino_sq->n, om, pli->fwd, &envsc);
   p7_Backward(pli->amino_sq->dsq, pli->amino_sq->n, om, pli->fwd, pli->bwd, NULL);
 
-  if((status = p7_Decoding(om, pli->fwd, pli->bwd, pli->pp)) == eslERANGE) { 
-    /* This is a rare event usually caused by a low probability exon somewhere in the path. 
-     * If we can find the offending exon and cut the path in two at that point then we can 
+  if((status = p7_Decoding(om, pli->fwd, pli->bwd, pli->bwd)) == eslERANGE) {  /* <bwd> is now overwritten with post probabilities */
+    /* This is a rare event usually caused by a low probability exon somewhere in the path.
+     * If we can find the offending exon and cut the path in two at that point then we can
      * save the good exons, but to do that we need an alignment so we create one with Viterbi */
 
-    p7_omx_GrowTo_dpf(pli->vit, om_log->M, pli->amino_sq->n, pli->amino_sq->n);
+    p7_omx_GrowTo_dpf(pli->fwd, om_log->M, pli->amino_sq->n, pli->amino_sq->n);  /* <fwd> is no longer needed for its forward scores; reused for the Viterbi matrix */
     p7_oprofile_ReconfigUnihit_Log(om_log, pli->amino_sq->n);
 
-    p7_Viterbi(pli->amino_sq->dsq, pli->amino_sq->n, om_log, pli->vit, NULL);
-    p7_Viterbi_Trace(pli->amino_sq->dsq, pli->amino_sq->n, om_log, pli->vit, tr);
-   
+    p7_Viterbi(pli->amino_sq->dsq, pli->amino_sq->n, om_log, pli->fwd, NULL);
+    p7_Viterbi_Trace(pli->amino_sq->dsq, pli->amino_sq->n, om_log, pli->fwd, tr);
+
     p7_trace_Index(tr);
     hit->dcl->tr = p7_trace_splice_Convert(tr, pli->orig_nuc_idx, &splice_cnt);
 
@@ -3273,29 +3272,29 @@ p7_splice_AlignSplicedSequence(SPLICE_WORKER_INFO *info, SPLICE_PATH *spliced_pa
 	  p7_trace_splice_Destroy(hit->dcl->tr);
       p7_hit_Destroy(hit);
       p7_trace_Destroy(tr);
-      p7_omx_Reuse(pli->vit);
+      p7_omx_Reuse(pli->fwd);
       return eslOK;
     }
-    
+
     hit->dcl->ad = p7_alidisplay_splice_Create(hit->dcl->tr, 0, om, path_seq, pli->amino_sq, tr->sqfrom[0], splice_cnt, pli->show_cigar);
 
-    p7_splice_ScoreExons(pli, tr, hit->dcl->ad, om, FALSE); 
+    p7_splice_ScoreExons(pli, tr, hit->dcl->ad, om, FALSE);
     status = p7_splice_FixDecodingErrors(graph, spliced_path, hit->dcl->ad, path_seq);
 
     p7_trace_splice_Destroy(hit->dcl->tr);
     p7_alidisplay_Destroy(hit->dcl->ad);
-  
+
     hit->dcl->tr = NULL;
     hit->dcl->ad = NULL;
 
     p7_hit_Destroy(hit);
     p7_trace_Destroy(tr);
-    p7_omx_Reuse(pli->vit);
+    p7_omx_Reuse(pli->fwd);
     return status;
   }
-  
-  p7_OptimalAccuracy(om, pli->pp, pli->bwd, &oasc); /* <bwd> is now overwritten with OA scores */
-  p7_OATrace        (om, pli->pp, pli->bwd, tr);
+
+  p7_OptimalAccuracy(om, pli->bwd, pli->fwd, &oasc); /* <fwd> is now overwritten with OA scores */
+  p7_OATrace        (om, pli->bwd, pli->fwd, tr);
   
   p7_trace_Index(tr);
   hit->dcl->tr = p7_trace_splice_Convert(tr, pli->orig_nuc_idx, &splice_cnt);
@@ -3320,7 +3319,7 @@ p7_splice_AlignSplicedSequence(SPLICE_WORKER_INFO *info, SPLICE_PATH *spliced_pa
     return eslOK;
   }
 
-  p7_Null2_ByExpectation(om, pli->pp, null2);
+  p7_Null2_ByExpectation(om, pli->bwd, null2);
   domcorrection = 0.;
   for (i = 1; i <= pli->amino_sq->n; i++) {
     domcorrection += logf(null2[pli->amino_sq->dsq[i]]);

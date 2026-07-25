@@ -110,11 +110,9 @@ p7_splicepipeline_Create(const ESL_GETOPTS *go, int M_hint, int L_hint)
   pli->vit = NULL;
   pli->fwd = NULL;
   pli->bwd = NULL;
-  pli->pp  = NULL;
   if ((pli->vit = p7_omx_Create_dpf(M_hint, L_hint, L_hint, p7X_NSCELLS)) == NULL) goto ERROR;
   if ((pli->fwd = p7_omx_Create_dpf(M_hint, L_hint, L_hint, p7X_NSCELLS)) == NULL) goto ERROR;
   if ((pli->bwd = p7_omx_Create_dpf(M_hint, L_hint, L_hint, p7X_NSCELLS)) == NULL) goto ERROR;
-  if ((pli->pp  = p7_omx_Create_dpf(M_hint, L_hint, L_hint, p7X_NSCELLS)) == NULL) goto ERROR;
 
   pli->nuc_sq   = NULL;
   pli->amino_sq = NULL;
@@ -147,10 +145,9 @@ p7_splicepipeline_Reuse(SPLICE_PIPELINE *pli)
   pli->nuc_sq = NULL;
   pli->amino_sq = NULL; 
 
-  p7_omx_Reuse(pli->vit); 
+  p7_omx_Reuse(pli->vit);
   p7_omx_Reuse(pli->fwd);
   p7_omx_Reuse(pli->bwd);
-  p7_omx_Reuse(pli->pp);
 
   if(pli->orig_nuc_idx != NULL) free(pli->orig_nuc_idx);
   pli->orig_nuc_idx = NULL;  
@@ -195,7 +192,6 @@ p7_splicepipeline_Destroy(SPLICE_PIPELINE *pli)
   p7_omx_Destroy(pli->vit);
   p7_omx_Destroy(pli->fwd);
   p7_omx_Destroy(pli->bwd);
-  p7_omx_Destroy(pli->pp);
 
   p7_bg_Destroy(pli->bg);
 

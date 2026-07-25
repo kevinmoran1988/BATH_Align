@@ -137,10 +137,9 @@ typedef struct _splice_pipeline
   P7_OIVX *acc_ov;  
   P7_OIVX *don_ov;   
 
-  P7_OMX  *vit; 
+  P7_OMX  *vit;
   P7_OMX  *fwd;
-  P7_OMX  *bwd;  
-  P7_OMX  *pp;
+  P7_OMX  *bwd;
 
   P7_BG   *bg;
 
